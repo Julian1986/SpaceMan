@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
+//using System.Math;
 
 namespace SpaceMan
 {
@@ -11,7 +13,14 @@ namespace SpaceMan
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        
+
+        Texture2D background;
+        Texture2D textureCaveman;
+        Vector2 julianPosition;
+        SpriteFont font;
+        float julianSpeed;
+
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -27,6 +36,9 @@ namespace SpaceMan
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            julianPosition = new Vector2(graphics.PreferredBackBufferWidth / 2,
+            graphics.PreferredBackBufferHeight / 2);
+            julianSpeed = 100f;
 
             base.Initialize();
         }
@@ -41,6 +53,9 @@ namespace SpaceMan
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            textureCaveman = Content.Load<Texture2D>("spritesheet_caveman");
+            background = Content.Load<Texture2D>("stars");
+            font = Content.Load<SpriteFont>("test");
         }
 
         /// <summary>
@@ -63,6 +78,22 @@ namespace SpaceMan
                 Exit();
 
             // TODO: Add your update logic here
+            var kstate = Keyboard.GetState();
+
+            if (kstate.IsKeyDown(Keys.Up))
+                julianPosition.Y -= julianSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (kstate.IsKeyDown(Keys.Down))
+                julianPosition.Y += julianSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (kstate.IsKeyDown(Keys.Left))
+                julianPosition.X -= julianSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (kstate.IsKeyDown(Keys.Right))
+                julianPosition.X += julianSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            julianPosition.X = Math.Min(Math.Max(textureCaveman.Width / 2, julianPosition.X), graphics.PreferredBackBufferWidth - textureCaveman.Width / 2);
+            julianPosition.Y = Math.Min(Math.Max(textureCaveman.Height / 2, julianPosition.Y), graphics.PreferredBackBufferHeight - textureCaveman.Height / 2);
 
             base.Update(gameTime);
         }
@@ -73,11 +104,18 @@ namespace SpaceMan
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+            spriteBatch.Draw(textureCaveman, julianPosition, Color.White);
+            spriteBatch.DrawString(font, "Score", new Vector2(100, 100), Color.DarkGreen);
+            spriteBatch.End();
 
             base.Draw(gameTime);
+
+            //GraphicsDevice.Clear(Color.CornflowerBlue);
         }
     }
 }
